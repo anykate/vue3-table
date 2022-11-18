@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 // Importing the lodash library
 import { sortBy } from 'lodash'
 
@@ -14,6 +14,7 @@ const props = defineProps({
 
 // a value to check for sort
 const sort = ref(true)
+const searchQuery = ref('')
 const updatedList = ref(props.studentData)
 // a function to sort the table
 const sortTable = (col) => {
@@ -25,9 +26,31 @@ const sortTable = (col) => {
     updatedList.value = props.studentData
   }
 }
+
+const filteredList = computed(() => {
+  return updatedList.value.filter((student) => {
+    return (
+      // converts the query and value to lower case index
+      student.Name.toLowerCase().indexOf(searchQuery.value.toLowerCase()) != -1
+    )
+  })
+})
 </script>
 
 <template>
+  <div class="searchBar mt-5">
+    <!-- Filter Search -->
+    <div class="input-group mb-5">
+      <input
+        type="search"
+        class="form-control"
+        v-model="searchQuery"
+        placeholder="Student's Name"
+        aria-label="Recipient's username"
+        aria-describedby="button-addon2"
+      />
+    </div>
+  </div>
   <table class="table caption-top">
     <caption>
       <h1 class="text-center">List of Users</h1>
@@ -46,7 +69,7 @@ const sortTable = (col) => {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="student of updatedList" :key="student.ID">
+      <tr v-for="student of filteredList" :key="student.ID">
         <th scope="row">{{ student.ID }}</th>
         <td>{{ student.Name }}</td>
         <td>{{ student.Course }}</td>
